@@ -5,7 +5,7 @@
     "content_scripts": [
         {
             "matches": ["https://www.faceit.com/*"],
-            "js": ["Content.js"]
+            "js": ["api.js", "Content.js"]
         }
     ]
 }
