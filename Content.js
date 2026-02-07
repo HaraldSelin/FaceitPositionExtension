@@ -9,6 +9,22 @@ var nameArray = []
 var steam64Array = []
 
 
+async function validateKey() {
+    try {
+        const validate = await fetch("https://api-public.cs-prod.leetify.com/api-key/validate", {
+            method: "GET",
+            headers: 
+            {
+                _leetify_key: _leetify_key,
+            }
+        })
+        console.log(validate);
+    } catch(error) {
+        console.error(error.message);
+        return null;
+    }
+}
+
 const interval = setInterval(async () => {
     const roster = document.querySelectorAll('[class*="Nickname__Name"]');
     
@@ -66,12 +82,14 @@ async function getSteamID(name) {
 
 async function main(playerEntries) {
 
+    validateKey();
+
     for (const entry of playerEntries) {
 
         if (!entry.steam64 || !entry.container) continue;
 
         const result = await getData(entry.steam64);
-        //  if (!res) continue;
+        if (!result) continue;
 
         const ratingDiv = document.createElement("div");
         ratingDiv.className = "leetify-rating";
@@ -81,7 +99,7 @@ async function main(playerEntries) {
 
         entry.container.appendChild(ratingDiv);
 
-        await sleep(600);
+        await sleep(800);
     }
 }
 
@@ -94,7 +112,7 @@ async function getData(steam64)
             `${leetifyUrl}?steam64_id=${encodeURIComponent(steam64)}`,
             {
                 headers: {
-                    Authorization: `Bearer ${_leetify_key}`
+                    _leetify_key: _leetify_key,
                 }
             }
         );
