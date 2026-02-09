@@ -33,13 +33,14 @@ const interval = setInterval(async () => {
     clearInterval(interval);
     const playerEntries = [];
     for (const div of roster) {
-        const name = div.textContent.trim().replace(/\s+/g, "");
+        const name = div.textContent.trim();
         nameArray.push(name);
+        console.log(name);
         
         const steam64 = await getSteamID(name);
 
         if(steam64) {
-            console.log(steam64)
+            //console.log(steam64)
             steam64Array.push(steam64); 
 
             const container = div.closest('[class*="RosterParty__"]');
@@ -52,7 +53,7 @@ const interval = setInterval(async () => {
     }
     
     await main(playerEntries);
-}, 500); 
+}, 1000); 
 
 
 async function getSteamID(name) {
@@ -71,7 +72,10 @@ async function getSteamID(name) {
         }
 
         const result = await response.json();
-        return result.games.cs2.game_player_id;
+        return result?.games?.cs2?.game_player_id
+            ?? result?.games?.csgo?.game_player_id
+            ?? null;
+
 
     } catch (error) {
         console.error("FACEIT:", error.message);
@@ -87,10 +91,10 @@ async function main(playerEntries) {
     for (const entry of playerEntries) {
 
         if (!entry.steam64 || !entry.container) continue;
-
+        console.log(entry.steam64);
         const result = await getData(entry.steam64);
         if (!result) continue;
-
+        console.log(result.rating);
         const ratingDiv = document.createElement("div");
         ratingDiv.className = "leetify-rating";
 
@@ -99,8 +103,9 @@ async function main(playerEntries) {
 
         entry.container.appendChild(ratingDiv);
 
-        await sleep(800);
+        await sleep(1800);
     }
+    
 }
 
 
@@ -111,8 +116,9 @@ async function getData(steam64)
         const response = await fetch(
             `${leetifyUrl}?steam64_id=${encodeURIComponent(steam64)}`,
             {
+                method: "GET",
                 headers: {
-                    _leetify_key: _leetify_key,
+                    Authorization: `Bearer ${_leetify_key}`
                 }
             }
         );
